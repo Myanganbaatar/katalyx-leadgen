@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Katalyx · Générateur de leads</title>
+<style>
+:root{
+  --bg:#f5f7fa;--card:#ffffff;--ink:#101828;--ink2:#344054;--mute:#667085;--line:#e4e7ec;
+  --brand:#0f766e;--brand2:#14b8a6;--brandSoft:#e6f6f4;--hot:#d92d20;--hotSoft:#fef3f2;--warm:#b54708;--warmSoft:#fffaeb;
+  --cold:#175cd3;--coldSoft:#eff8ff;--ok:#067647;--okSoft:#ecfdf3;--shadow:0 1px 2px rgba(16,24,40,.06),0 4px 12px rgba(16,24,40,.06);
+}
+*{box-sizing:border-box}
+body{margin:0;font:15px/1.55 "Segoe UI",system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--ink)}
+a{color:var(--brand)}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+/* header */
+.top{background:linear-gradient(135deg,#0b4f4a,#0f766e 55%,#14b8a6);color:#fff}
+.top .wrap{padding-top:34px;padding-bottom:30px;display:flex;gap:28px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.top h1{margin:0;font-size:28px;letter-spacing:-.01em}
+.top p{margin:6px 0 0;max-width:640px;color:#d1f2ee}
+.cta{display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+.btn{font:inherit;font-weight:600;border:0;border-radius:12px;padding:14px 26px;cursor:pointer;display:inline-flex;align-items:center;gap:10px}
+.btn.primary{background:#fff;color:#0b4f4a;font-size:17px;box-shadow:0 6px 20px rgba(0,0,0,.18)}
+.btn.primary:hover{transform:translateY(-1px)}
+.btn:disabled{opacity:.6;cursor:wait;transform:none}
+.links{display:flex;gap:8px;flex-wrap:wrap}
+.links a{color:#fff;text-decoration:none;border:1px solid rgba(255,255,255,.45);border-radius:999px;padding:5px 12px;font-size:13px}
+.links a:hover{background:rgba(255,255,255,.12)}
+.last{font-size:12.5px;color:#cde9e5}
+/* stepper */
+.stepper{margin-top:-22px}
+.steps{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+.st{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:var(--shadow);position:relative}
+.st .ic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:17px;background:var(--brandSoft);margin-bottom:8px}
+.st .t{font-weight:650;font-size:13.5px;line-height:1.3}
+.st .n{font-size:24px;font-weight:750;margin-top:6px;letter-spacing:-.02em}
+.st .s{font-size:12px;color:var(--mute)}
+.st.running{border-color:var(--brand2);box-shadow:0 0 0 3px rgba(20,184,166,.18)}
+.st.running .ic{animation:pulse 1.2s ease-in-out infinite}
+.st.done .ic{background:var(--okSoft)}.st.error{border-color:var(--hot)}.st.pending{opacity:.55}
+@keyframes pulse{50%{transform:scale(1.12)}}
+.bar{height:6px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:8px}.bar i{display:block;height:100%;background:var(--brand2);transition:width .5s}
+/* status line */
+.status{margin:16px 0 0;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 16px;display:none;align-items:center;gap:12px}
+.status.on{display:flex}.status .dot{width:10px;height:10px;border-radius:50%;background:var(--brand2);animation:pulse 1s infinite}
+.status.ok .dot{background:var(--ok);animation:none}.status.err .dot{background:var(--hot);animation:none}
+/* tabs */
+.tabs{display:flex;gap:4px;margin:26px 0 14px;border-bottom:1px solid var(--line)}
+.tab{font:inherit;background:none;border:0;padding:10px 16px;cursor:pointer;color:var(--mute);font-weight:600;border-bottom:2px solid transparent;margin-bottom:-1px}
+.tab.on{color:var(--brand);border-color:var(--brand)}
+.pane{display:none}.pane.on{display:block}
+/* KPI */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.kpi b{display:block;font-size:26px;letter-spacing:-.02em}.kpi span{color:var(--mute);font-size:13px}
+/* leads */
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+.chip{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:5px 12px;cursor:pointer}
+.chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px}
+.lead{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:10px}
+.lead .h{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.lead .co{font-weight:700;font-size:16px;line-height:1.3}.lead .meta{color:var(--mute);font-size:12.5px;margin-top:2px}
+.badge{font-size:12px;font-weight:700;border-radius:999px;padding:3px 10px;white-space:nowrap}
+.score{display:flex;flex-direction:column;align-items:flex-end;gap:4px}.score b{font-size:22px;line-height:1;letter-spacing:-.02em}.score b small{font-size:12px;color:var(--mute);font-weight:600}
+.restr{font-size:12px;color:var(--warm);background:var(--warmSoft);border-radius:8px;padding:4px 8px}
+.b-chaud{background:var(--hotSoft);color:var(--hot)}.b-tiède{background:var(--warmSoft);color:var(--warm)}.b-froid{background:var(--coldSoft);color:var(--cold)}
+.b-ok{background:var(--okSoft);color:var(--ok)}.b-part{background:var(--warmSoft);color:var(--warm)}
+.person{display:flex;gap:10px;align-items:center;background:var(--bg);border-radius:10px;padding:8px 10px}
+.av{width:34px;height:34px;border-radius:50%;background:var(--brand);color:#fff;display:grid;place-items:center;font-weight:700;font-size:13px;flex:none}
+.person b{font-size:14px}.person div{line-height:1.25}.person small{color:var(--mute)}
+.cts{display:flex;flex-direction:column;gap:3px;font-size:13px}.cts a{text-decoration:none}
+.why{font-size:13px;color:var(--ink2);margin:0}
+.foot{display:flex;justify-content:space-between;gap:8px;align-items:center;font-size:12px;color:var(--mute);border-top:1px solid var(--line);padding-top:8px;flex-wrap:wrap}
+.tag{font-size:12px;background:var(--brandSoft);color:var(--brand);border-radius:6px;padding:2px 8px;font-weight:600}
+.empty{background:var(--card);border:1px dashed var(--line);border-radius:14px;padding:40px;text-align:center;color:var(--mute)}
+/* how it works */
+.how{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.hw{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.hw h3{margin:0 0 4px;font-size:15px;display:flex;gap:8px;align-items:center}.hw .src{color:var(--mute);font-size:12.5px;margin-bottom:8px}
+.hw p{margin:0 0 6px;font-size:13.5px}.hw .io{font-size:12.5px;color:var(--mute)}
+.rule{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:14px}
+.rule h3{margin:0 0 8px;font-size:15px}.rule li{margin-bottom:4px;font-size:13.5px}
+/* data */
+.dtools{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+select,input[type=search]{font:inherit;font-size:14px;padding:8px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink)}
+.tw{overflow:auto;max-height:620px;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+table{border-collapse:collapse;width:100%;font-size:12.5px}th,td{border-bottom:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+th{position:sticky;top:0;background:#f9fafb;z-index:1;white-space:nowrap;font-weight:650}td{max-width:380px}
+tr.x td{color:var(--mute)}
+pre{background:#0f1218;color:#c9d1d9;font:12px/1.5 Consolas,monospace;border-radius:12px;padding:12px;max-height:520px;overflow:auto;white-space:pre-wrap;margin:0}
+@media (max-width:980px){.steps{grid-template-columns:repeat(3,1fr)}.kpis{grid-template-columns:repeat(2,1fr)}.how{grid-template-columns:1fr}}
+@media (max-width:560px){.steps{grid-template-columns:repeat(2,1fr)}.wrap{padding:0 16px}.cta{align-items:stretch;width:100%}.btn.primary{justify-content:center}}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <div>
+    <h1>Générateur de leads · Katalyx LAB IA</h1>
+    <p>Trouve en Région Sud les PME industrielles et du BTP qui ont besoin d'un agent IA maintenant, vérifie chaque contact et livre les 10 meilleurs leads. Un seul clic.</p>
+  </div>
+  <div class="cta">
+    <button class="btn primary" id="go">▶ Générer les leads</button>
+    <div class="links"><a href="/leads.xlsx">⬇ Excel des leads</a><a href="/rapport.pdf" target="_blank">📄 Rapport PDF</a></div>
+    <div class="last" id="last"></div>
+  </div>
+</div></header>
+
+<main class="wrap">
+  <section class="stepper"><div class="steps" id="steps"></div></section>
+  <div class="status" id="status"><span class="dot"></span><span id="statusText"></span></div>
+
+  <nav class="tabs">
+    <button class="tab on" data-p="leads">Leads</button>
+    <button class="tab" data-p="how">Comment ça marche</button>
+    <button class="tab" data-p="data">Données détaillées</button>
+  </nav>
+
+  <section class="pane on" id="p-leads">
+    <div class="kpis" id="kpis"></div>
+    <div class="filters" id="filters"></div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <section class="pane" id="p-how">
+    <div class="how" id="how"></div>
+    <div class="rule"><h3>Comment chaque lead est décidé et classé</h3>
+      <p style="margin:0 0 6px;font-size:13.5px">Claude et Gemini donnent leur avis, mais la décision finale suit une règle unique fondée sur les preuves :</p>
+      <ul>
+        <li><span class="badge b-chaud">Besoin confirmé</span> (chaud) offre d'emploi réelle publiée il y a moins de 90 jours, ou événement de croissance daté de moins de 6 mois, avec sa source ;</li>
+        <li><span class="badge b-tiède">Besoin probable</span> (tiède) signal réel mais indirect (prédiction de recrutement, offre ou événement plus ancien) ;</li>
+        <li><span class="badge b-froid">À explorer</span> (froid) aucun signal confirmé.</li>
+      </ul><p style="margin:6px 0 0;font-size:13.5px">Le <b>score de priorité sur 100</b> classe les leads : preuve du besoin et fraîcheur (50), taille adaptée (15), contacts complets (20), avis de Gemini (15).</p></div>
+  </section>
+
+  <section class="pane" id="p-data">
+    <div class="dtools"><select id="dsel"></select><input type="search" id="q" placeholder="Rechercher une entreprise, une ville…"></div>
+    <div class="tw"><table id="tbl"></table></div>
+  </section>
+
+</main>
+
+<script>
+const STEPS=[
+ {id:"jobs",ic:"📰",t:"Offres d'emploi",src:"France Travail · recherche publique",file:"jobs",
+  what:"Lit les offres récentes de la Région Sud pour les postes que les agents automatisent (ADV, chiffreur, qualité, administratif, contrôle de gestion). Garde les employeurs directs de moins de 45 jours.",
+  why:"Une offre réelle et récente est la meilleure preuve d'un besoin actuel.",io:"→ jobs.csv"},
+ {id:"signals",ic:"📡",t:"Signaux de recrutement",src:"API France Travail · La Bonne Boite",file:"signals",
+  what:"Ajoute les entreprises que France Travail prédit sur le point de recruter sur ces postes, dans les secteurs de Katalyx.",
+  why:"Élargit la liste aux entreprises dont la charge augmente, même sans offre publiée.",io:"→ signals.csv"},
+ {id:"enrich",ic:"🏛️",t:"Filtrage au registre",src:"recherche-entreprises.api.gouv.fr",file:"enrich",
+  what:"Vérifie taille et dirigeants au registre officiel. Écarte les grands groupes, les très petites structures et les entreprises opposées à la prospection.",
+  why:"Katalyx vise les PME/ETI, et démarcher une entreprise opposée à la prospection serait contraire au RGPD.",io:"→ enriched.csv"},
+ {id:"research",ic:"🤖",t:"Recherche par l'agent IA",src:"Claude · recherche web",file:"research",
+  what:"Pour chaque entreprise retenue, un agent Claude trouve le site officiel, l'email et le téléphone publics, le bon interlocuteur et une preuve datée du besoin.",
+  why:"Chaque lead doit être réel, joignable et sourcé. L'agent n'invente rien.",io:"→ researched.csv"},
+ {id:"qualify",ic:"🎯",t:"Qualification",src:"Gemini (second avis) + règle de décision",file:"qualify",
+  what:"Gemini note chaque entreprise sur 100, la règle fixe la chaleur, puis les 10 meilleurs leads joignables sont exportés.",
+  why:"Deux modèles et une règle claire : une seule décision, explicable.",io:"→ leads.xlsx"},
+ {id:"verify",ic:"✅",t:"Vérification",src:"Registre, DNS, sites web",file:"verify",
+  what:"Contrôle chaque lead sans contacter personne : entreprise active, interlocuteur confirmé, site en ligne, email valide, téléphone publié, offre toujours en ligne. Puis génère le rapport PDF.",
+  why:"Katalyx appellera les leads : ils doivent être réels et joignables.",io:"→ verification.csv + rapport.pdf"},
+];
+const $=s=>document.querySelector(s), esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let status={}, leads=[], verif={}, heatFilter="tous";
+const fmt=s=>s>=60?`${Math.floor(s/60)} min ${String(s%60).padStart(2,"0")}`:`${s} s`;
+
+function nums(id){const s=status.steps?.[id]||{}; if(!s.exists) return ["—","pas encore lancé"];
+  return {jobs:[s.count,"offres réelles"],signals:[s.count,"entreprises détectées"],enrich:[s.kept,`retenues sur ${s.count}`],
+    research:[s.count,"entreprises étudiées"],qualify:[s.count,"leads livrés"],verify:[`${s.ok}/${s.count}`,"leads vérifiés"]}[id];}
+
+function renderSteps(){
+  const p=status.progress, state={}, extra={};
+  (p?.steps||[]).forEach(x=>{state[x.id]=x.state;extra[x.id]=x;});
+  $("#steps").innerHTML=STEPS.map((st,i)=>{
+    const s=state[st.id]||(status.running?"pending":"idle"); const [n,sub]=nums(st.id); const x=extra[st.id]||{};
+    let line=sub, bar="";
+    if(s==="running"){ line = x.total?`${x.done} / ${x.total} entreprises`:`en cours · ${fmt(x.seconds||0)}`;
+      if(x.total) bar=`<div class="bar"><i style="width:${Math.round(100*x.done/x.total)}%"></i></div>`; }
+    const cls={ok:"done",running:"running",error:"error",pending:"pending"}[s]||"";
+    const ic = s==="ok"?"✓":s==="error"?"!":st.ic;
+    return `<div class="st ${cls}"><div class="ic">${ic}</div><div class="t">${i}. ${st.t}</div><div class="n">${s==="running"?"…":esc(n)}</div><div class="s">${esc(line)}</div>${bar}</div>`;
+  }).join("");
+  const box=$("#status"); box.className="status";
+  if(p){ box.classList.add("on");
+    if(status.running){ const st=STEPS.find(s=>s.id===status.running); $("#statusText").textContent=`Étape en cours : ${st?st.t:status.running} · ${fmt(p.elapsed)} écoulées (environ 20 minutes au total)`; }
+    else if(status.returncode){ box.classList.add("err"); $("#statusText").textContent="L'exécution s'est arrêtée sur une erreur. Le dernier résultat valide est conservé : relancez plus tard."; }
+    else { box.classList.add("ok"); $("#statusText").textContent=`Terminé en ${fmt(p.elapsed)} : les leads ci-dessous sont à jour.`; } }
+  $("#go").disabled=!!status.running; $("#go").textContent=status.running?"⏳ Génération en cours…":"▶ Générer les leads";
+  const q=status.steps?.qualify; $("#last").textContent=q?.modified?`Derniers leads : ${q.modified}`:"";
+}
+
+async function loadLeads(){
+  const [a,b]=await Promise.all([fetch("/api/data?name=qualify").then(r=>r.json()),fetch("/api/data?name=verify").then(r=>r.json())]);
+  leads=a.rows||[]; verif={}; (b.rows||[]).forEach(r=>verif[r["Entreprise"]]=r["Verdict"]);
+  const c=h=>leads.filter(l=>l["Chaleur"]===h).length, v=Object.values(verif).filter(x=>x==="Vérifié").length;
+  $("#kpis").innerHTML=[[leads.length,"leads livrés"],[c("chaud"),"besoins confirmés"],[c("tiède"),"besoins probables"],[Object.keys(verif).length?`${v}/${Object.keys(verif).length}`:"—","vérifiés automatiquement"]]
+    .map(([b,s])=>`<div class="kpi"><b>${b}</b><span>${s}</span></div>`).join("");
+  $("#filters").innerHTML=["tous","chaud","tiède","froid"].map(h=>`<button class="chip ${heatFilter===h?"on":""}" data-h="${h}">${{tous:"Tous",chaud:"Besoin confirmé",tiède:"Besoin probable",froid:"À explorer"}[h]}</button>`).join("");
+  document.querySelectorAll(".chip").forEach(b=>b.onclick=()=>{heatFilter=b.dataset.h;loadLeads();});
+  drawLeads();
+}
+function drawLeads(){
+  const L=leads.filter(l=>heatFilter==="tous"||l["Chaleur"]===heatFilter);
+  if(!leads.length){$("#grid").innerHTML=`<div class="empty">Aucun lead pour l'instant.<br>Cliquez sur <b>▶ Générer les leads</b> en haut à droite.</div>`;return;}
+  const short=u=>u.replace(/^https?:\/\/(www\.)?/,"").replace(/\/$/,"");
+  $("#grid").innerHTML=L.map(r=>{
+    const name=r["Prénom Nom"]||"", ini=name.split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase();
+    const proof=(r["Source du signal"]||"").split(" | ").find(s=>/^https?:/.test(s));
+    const offer=(r["Pourquoi ce lead est qualifié (signal)"]||"").match(/https:\/\/candidat\.francetravail\.fr\S+/);
+    const vd=verif[r["Entreprise"]], why=(r["Justification de la chaleur"]||"").split(" | ")[0].replace(/^Claude : /,"");
+    return `<article class="lead">
+      <div class="h"><div><div class="co">${esc(r["Entreprise"])}</div><div class="meta">${esc(r["Localisation"])} · ${esc(r["Taille"])} salariés · ${esc((r["Secteur"]||"").slice(0,60))}</div></div>
+        <div class="score"><b>${esc(r["Score de priorité /100"])}<small>/100</small></b><span class="badge b-${esc(r["Chaleur"])}" title="Chaleur Katalyx : ${esc(r["Chaleur"])}">${esc(r["Niveau de besoin"]||r["Chaleur"])}</span></div></div>
+      ${r["Restriction de contact"]?`<div class="restr">⚠️ Contact uniquement via les coordonnées publiées par l'entreprise</div>`:""}
+      <div class="person"><div class="av">${esc(ini)}</div><div><b>${esc(name)}</b><br><small>${esc(r["Poste"])}</small></div></div>
+      <div class="cts">${r["Email pro"]?`<span>✉️ <a href="mailto:${esc(r["Email pro"].split(",")[0])}">${esc(r["Email pro"].split(",")[0])}</a></span>`:""}
+        ${r["Téléphone"]?`<span>📞 ${esc(r["Téléphone"].split(",")[0])}</span>`:""}
+        ${r["Site web"]?`<span>🌐 <a href="${esc(r["Site web"])}" target="_blank" rel="noopener">${esc(short(r["Site web"]))}</a></span>`:""}
+        ${r["LinkedIn"]?`<span>💼 <a href="${esc(r["LinkedIn"])}" target="_blank" rel="noopener">LinkedIn</a></span>`:""}</div>
+      <p class="why">${esc(why.slice(0,260))}${why.length>260?"…":""}</p>
+      <div class="foot"><span class="tag">${esc((r["Offre Katalyx visée"]||"").replace("LAB IA - ",""))}</span>
+        <span>${offer?`<a href="${esc(offer[0])}" target="_blank" rel="noopener">Voir l'offre</a> · `:""}${proof?`<a href="${esc(proof)}" target="_blank" rel="noopener">Preuve</a> · `:""}
+        ${vd?`<span class="badge ${vd==="Vérifié"?"b-ok":"b-part"}">${vd==="Vérifié"?"✓ Vérifié":"À vérifier"}</span>`:""}</span></div>
+    </article>`;}).join("");
+}
+
+function renderHow(){ $("#how").innerHTML=STEPS.map((s,i)=>`<div class="hw"><h3>${s.ic} ${i}. ${s.t}</h3><div class="src">${esc(s.src)}</div><p>${esc(s.what)}</p><p><b>Pourquoi :</b> ${esc(s.why)}</p><div class="io">${esc(s.io)}</div></div>`).join(""); }
+
+const FILES=[["qualify","Les 10 leads"],["verify","Vérification"],["research","Recherche IA (toutes les entreprises)"],["enrich","Registre : retenues et écartées"],["signals","Signaux de recrutement"],["jobs","Offres d'emploi"]];
+const HIDE=new Set(["naf","postcode","department","high_potential","siret","agent_turns","agent_seconds","agent_error"]);
+let drows=[],dcols=[];
+async function loadData(){ const d=await (await fetch(`/api/data?name=${$("#dsel").value}`)).json(); drows=d.rows||[]; dcols=(d.columns||[]).filter(c=>!HIDE.has(c)); drawData(); }
+function drawData(){ const q=$("#q").value.toLowerCase(), R=drows.filter(r=>!q||Object.values(r).join(" ").toLowerCase().includes(q));
+  $("#tbl").innerHTML=`<tr>${dcols.map(c=>`<th>${esc(c)}</th>`).join("")}</tr>`+R.map(r=>`<tr class="${r.excluded_because?"x":""}">${dcols.map(c=>{const v=r[c]??"";return `<td>${/^https?:\/\//.test(v)?`<a href="${esc(v)}" target="_blank" rel="noopener">${esc(v)}</a>`:esc(v)}</td>`;}).join("")}</tr>`).join(""); }
+
+async function refresh(){ const was=status.running; status=await (await fetch("/api/status")).json(); renderSteps(); if(was&&!status.running){loadLeads(); loadData();} }
+
+$("#go").onclick=async()=>{ const r=await fetch("/api/run?step=all",{method:"POST"}); if(!r.ok) return alert((await r.json()).error); refresh(); };
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x===t));document.querySelectorAll(".pane").forEach(p=>p.classList.toggle("on",p.id==="p-"+t.dataset.p));});
+$("#dsel").innerHTML=FILES.map(([v,l])=>`<option value="${v}">${l}</option>`).join(""); $("#dsel").onchange=loadData; $("#q").oninput=drawData;
+renderHow(); loadLeads(); loadData(); refresh(); setInterval(refresh,1500);
+</script>
+</body>
+</html>
